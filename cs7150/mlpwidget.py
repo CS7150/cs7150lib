@@ -41,7 +41,7 @@ class MLPHistoryWidget(Widget):
         return show.html(self.content)
     
     def visualize_net(self, fig, index=0):
-		'''
+        '''
         The plot rendering method for the widget.
         '''
         fig.subplots_adjust(0.02, 0.02, 0.98, 0.98)
