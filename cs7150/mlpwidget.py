@@ -9,7 +9,7 @@ class MLPHistoryWidget(Widget):
 
         `show(MLPHistoryWidget(data=D, labels=L, history=[net1, net2, net3]))`
     '''
-    def __init__(self, data=None, labels=None, history=None, maxWidth=800):
+    def __init__(self, data=None, labels=None, history=None, maxWidth=1000):
         super().__init__()
         # We visualize the data points in the label classes, as well as
         # a history of trained networks.
