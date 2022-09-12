@@ -65,4 +65,6 @@ class LossSurfaceWidget(Widget):
                     preds = mlp(self.data)[:,0]
                     loss = ((preds - self.labels) ** 2).mean()
                     losses[i,j] = loss
+            param1[index1] = original_1
+            param2[index2] = original_2
         ax.imshow(losses, cmap='hot', extent=[-lim,lim,-lim,lim])
