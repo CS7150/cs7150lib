@@ -9,19 +9,21 @@ class MLPHistoryWidget(Widget):
 
         `show(MLPHistoryWidget(data=D, labels=L, history=[net1, net2, net3]))`
     '''
-    def __init__(self, data=None, labels=None, history=None):
+    def __init__(self, data=None, labels=None, history=None, maxWidth=800):
         super().__init__()
         # We visualize the data points in the label classes, as well as
         # a history of trained networks.
         self.history = history if history is not None else []
         self.data = data if data is not None else []
         self.labels = labels if labels is not None else []
+        self.maxWidth = maxWidth
         # The layout consists of a plot with a scrubber to show the iteration count
         self.plot = PlotWidget(
                 self.visualize_net,
                 index=max(0, len(self.history) - 1),
-                mosaic='012\n333',
-                figsize=(11,6),
+                ncols=3,
+                nrows=2,
+                figsize=(11,5.5),
                 bbox_inches='tight',
                 gridspec_kw={'hspace': 0.25, 'height_ratios': [2,1]})
         scrubber = Range(min=0, max=len(self.history), value=self.plot.prop('index'))
@@ -36,10 +38,10 @@ class MLPHistoryWidget(Widget):
         ]
         # If you click on the history, it also moves the scrubber.
         self.plot.on('click', self.plot_click)
-    
+
     def _repr_html_(self):
-        return show.html(self.content)
-    
+        return show.html(show.style(maxWidth=self.maxWidth), self.content)
+
     def visualize_net(self, fig, index=0):
         '''
         The plot rendering method for the widget.
@@ -54,17 +56,22 @@ class MLPHistoryWidget(Widget):
                 x0 = (-b - w[1] * x1) / w[0]
             return torch.stack([x0, x1], dim=1)
 
-        ax1, ax2, ax3, ax4 = fig.axes
+        if len(fig.axes) > 4:
+            gs = fig.axes[3].get_gridspec()
+            for ax in fig.axes[3:]:
+                ax.remove()
+            fig.add_subplot(gs[1, :])
+        ax1, ax2, ax3, ax4 = fig.axes[:4]
         ax1.clear(); ax2.clear(); ax3.clear(); ax4.clear()
         if index >= len(self.history):
             return
-        
+
         # Visualize the network output
         net, data = self.history[index]
         grid = torch.stack([
             torch.linspace(-3, 3, 200)[None, :].expand(200, 200),
             torch.linspace(3, -3, 200)[:, None].expand(200, 200),
-        ])        
+        ])
         ax1.set_title('network output')
         with torch.no_grad():
             score = net(grid.permute(1, 2, 0).reshape(-1, 2))
@@ -96,7 +103,7 @@ class MLPHistoryWidget(Widget):
         ax3.set_ylim(-3, 3)
         ax3.set_xlim(-3, 3)
         ax3.set_aspect(1.0)
-        
+
         # Draw the loss curve and any other plotted stats.
         ax4.set_title('training curve')
         ax4.set_xlabel('iteration')
@@ -108,7 +115,7 @@ class MLPHistoryWidget(Widget):
                      [h[1][k] for h in self.history],
                      linewidth=0.5, label=label)
         ax4.legend()
-        
+
     def plot_click(self, e):
         '''
         Handles click events for the widget, moves the scrubber to the
@@ -118,3 +125,4 @@ class MLPHistoryWidget(Widget):
         if loc.axis == 3: # Fourth axis
             self.plot.index = max(0, min(len(self.history) - 1, int(loc.x + 0.5)))
             self.plot.redraw()
+
