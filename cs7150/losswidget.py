@@ -9,10 +9,10 @@ class LossSurfaceWidget(Widget):
         self.param_map = OrderedDict([(f'{name}{index}', (param, index))
             for name, param in mlp.named_parameters()
             for index in numpy.ndindex(param.shape)])
-        menu1 = Menu(param_map.keys())
+        menu1 = Menu(self.param_map.keys())
         plot1 = PlotWidget(self.draw_loss_curve, mlp=mlp,
                 param_name=menu1.prop('value'), figsize=(3,2.8))
-        menu2 = Menu(param_map.keys())
+        menu2 = Menu(self.param_map.keys())
         plot2 = PlotWidget(self.draw_loss_curve, mlp=mlp,
                 param_name=menu2.prop('value'), figsize=(3,2.8))
         plot3 = PlotWidget(self.draw_loss_surface, mlp=mlp,
@@ -43,7 +43,9 @@ class LossSurfaceWidget(Widget):
         ax.plot(offsets, losses)
 
     def draw_loss_surface(self, fig, mlp=None, param_name_1=None, param_name_2=None, lim=10):
-        if mlp is None or param_name_1 not in param_map or param_name_2 not in param_map:
+        if (mlp is None or
+                param_name_1 not in self.param_map or
+                param_name_2 not in self.param_map):
             return
         [ax] = fig.axes
         ax.clear()
