@@ -1,6 +1,6 @@
 import torch, numpy
 
-def seeded_net(seed, net):
+def seeded_net(seed, net, uniform=False):
     '''
     Deterministically seeds the given network with pseudorandom weights
     determined by the given seed, to make classroom exercises more
@@ -14,7 +14,10 @@ def seeded_net(seed, net):
     prng = numpy.random.RandomState(seed)
     with torch.no_grad():
         for p in net.parameters():
-            p[...] = torch.tensor(prng.uniform(-1.0, 1.0, p.numel())).reshape(p.shape)
+            if uniform:
+                p[...] = torch.tensor(prng.uniform(-1.0, 1.0, p.numel())).reshape(p.shape)
+            else:
+                p[...] = torch.tensor(prng.randn(p.numel())).reshape(p.shape)
     return net
 
 def non_linearly_separable_data(seed=1, n=100, integer_labels=False):
