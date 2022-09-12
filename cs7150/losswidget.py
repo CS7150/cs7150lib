@@ -3,9 +3,11 @@ from collections import OrderedDict
 from baukit import Widget, Menu, show, PlotWidget
 
 class LossSurfaceWidget(Widget):
-    def __init__(self, mlp):
+    def __init__(self, mlp, data, labels):
         super().__init__()
         self.mlp = mlp
+        self.data = data
+        self.labels = labels
         self.param_map = OrderedDict([(f'{name}{index}', (param, index))
             for name, param in mlp.named_parameters()
             for index in numpy.ndindex(param.shape)])
@@ -35,8 +37,8 @@ class LossSurfaceWidget(Widget):
             original_w = param[index].detach().item()
             for offset in offsets:
                 param[index] = original_w + offset
-                preds = mlp(data)[:,0]
-                loss = ((preds - labels) ** 2).mean()
+                preds = mlp(self.data)[:,0]
+                loss = ((preds - self.labels) ** 2).mean()
                 losses.append(loss.item())
             param[index] = original_w
         ax.set_title(param_name)
@@ -60,7 +62,7 @@ class LossSurfaceWidget(Widget):
                 param1[index1] = offsets[i]
                 for j in range(101):
                     param2[index2] = offsets[j]
-                    preds = mlp(data)[:,0]
-                    loss = ((preds - labels) ** 2).mean()
+                    preds = mlp(self.data)[:,0]
+                    loss = ((preds - self.labels) ** 2).mean()
                     losses[i,j] = loss
         ax.imshow(losses, cmap='hot', extent=[-lim,lim,-lim,lim])
