@@ -28,7 +28,7 @@ def non_linearly_separable_data(seed=1, n=100, integer_labels=False):
         `data, labels = non_linearly_separable_data()`
     '''
     prng = numpy.random.RandomState(seed)
-    data = torch.Tensor(prng.randn(100, 2))
+    data = torch.Tensor(prng.randn(n, 2))
     labels = torch.Tensor(numpy.stack([
         (d[0].sign() == d[1].sign())
         for d in data
